@@ -48,10 +48,9 @@ class Seq2SeqDecoder(nn.Module):
             input_size=model_args.rnn_input_size,
             hidden_size=model_args.rnn_hidden_size,
             num_layers=model_args.rnn_num_layers,
-            bidirectional=model_args.rnn_bidirectional,
             batch_first=True
         )
-        in_features = model_args.rnn_hidden_size * 2 if model_args.rnn_bidirectional else model_args.rnn_num_layers
+        in_features = model_args.rnn_num_layers
         self.classifier = nn.Linear(in_features, model_args.tgt_vocab_size)
 
     def forward(self, x, h_0, c_0):
@@ -131,12 +130,12 @@ class Seq2SeqSystem(pl.LightningModule):
         output_tokens = self.convert_ids_to_tokens(outputs.argmax(-1))
         tgt_tokens = self.convert_ids_to_tokens(tgt, is_gold=True)
         self.metric.add_batch(predictions=output_tokens, references=tgt_tokens)
-        self.log(f'val_loss {self.current_epoch}', val_loss.item())
+        self.log('val_loss', val_loss.item())
 
         return val_loss
 
     def validation_epoch_end(self, outputs):
-        self.log(f"bleu {self.current_epoch}", self.metric.compute()['bleu'])
+        self.log("bleu_score", self.metric.compute()['bleu'])
         return super().validation_epoch_end(outputs)
 
     def init_weights(self, m):

@@ -93,7 +93,7 @@ def main(cfg_file):
 
     combined_train = CombinedLoader({'src': src_dataloader_train, 'tgt': tgt_dataloader_train})
     combined_valid = CombinedLoader({'src': src_dataloader_valid, 'tgt': tgt_dataloader_valid})
-    model = Seq2SeqSystem(model_args).load_from_checkpoint("seq2seq/version_0/checkpoints/epoch=7-step=12712.ckpt")
+    model = Seq2SeqSystem(model_args)
     logger = CSVLogger(save_dir=data_args.save_dir, name="seq2seq")
     trainer = Trainer.from_argparse_args(training_args, accelerator='gpu', devices=[0], logger=logger)
     trainer.fit(model, combined_train, combined_valid)
